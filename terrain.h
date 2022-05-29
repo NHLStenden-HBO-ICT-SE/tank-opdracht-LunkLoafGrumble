@@ -14,7 +14,6 @@ namespace Tmpl8
     class TerrainTile
     {
     public:
-        //TerrainTile *up, *down, *left, *right;
         vector<TerrainTile*> exits;
         bool visited = false;
 
@@ -35,7 +34,6 @@ namespace Tmpl8
         void update();
         void draw(Surface* target) const;
 
-        //Use Breadth-first search to find shortest route to the destination
         vector<vec2> get_route(const Tank& tank, const vec2& target);
 
         float get_speed_modifier(const vec2& position) const;

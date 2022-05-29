@@ -10,10 +10,6 @@ void NotifyUser(const char* s);
 char Surface::s_Font[51][5][6];
 bool Surface::fontInitialized = false;
 
-// -----------------------------------------------------------
-// True-color surface class implementation
-// -----------------------------------------------------------
-
 Surface::Surface(int a_Width, int a_Height, Pixel* a_Buffer, int a_Pitch) : m_Buffer(a_Buffer),
                                                                             m_Width(a_Width),
                                                                             m_Height(a_Height),
@@ -71,7 +67,6 @@ Surface::~Surface()
 {
     if (m_Flags & OWNER)
     {
-        // only delete if the buffer was not passed to us
         FREE64(m_Buffer);
     }
 }
@@ -142,7 +137,6 @@ void Surface::resize(Surface* a_Orig)
 
 void Surface::line(float x1, float y1, float x2, float y2, Pixel c)
 {
-    // clip (Cohen-Sutherland, https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm)
     const float xmin = 0, ymin = 0, xmax = (float)m_Width - 1, ymax = (float)m_Height - 1;
     int c0 = OUTCODE(x1, y1), c1 = OUTCODE(x2, y2);
     bool accept = false;
@@ -444,7 +438,6 @@ void Sprite::draw_scaled(int a_X, int a_Y, int a_Width, int a_Height, Surface* a
     if ((a_X < -a_Width) || (a_X > (a_Target->get_width() + a_Width))) return;
     if ((a_Y < -a_Height) || (a_Y > (a_Target->get_height() + a_Height))) return;
 
-    //Get start and end points
     int x1 = a_X;
     int x2 = a_X + a_Width;
     int y1 = a_Y;
@@ -455,12 +448,11 @@ void Sprite::draw_scaled(int a_X, int a_Y, int a_Width, int a_Height, Surface* a
     int y_start = 0;
     int y_end = a_Height;
 
-    //Set start x to within screen
     if (x1 < 0)
     {
         x_start += -x1;
     }
-    //Set end x to within screen
+
     if (x2 > a_Target->get_width()) x_end = a_Width - (x2 - a_Target->get_width());
     if (y1 < 0)
     {

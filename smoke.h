@@ -15,4 +15,4 @@ class Smoke
     int current_frame;
     Sprite& smoke_sprite;
 };
-} // namespace Tmpl8
+}

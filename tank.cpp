@@ -45,11 +45,9 @@ void Tank::tick(Terrain& terrain)
         direction = (target - position).normalized();
     }
 
-    //Update using accumulated force
     speed = direction + force;
     position += speed * max_speed * 0.5f;
 
-    //Update reload time
     if (--reload_time <= 0.0f)
     {
         reloaded = true;
@@ -59,7 +57,6 @@ void Tank::tick(Terrain& terrain)
 
     if (++current_frame > 8) current_frame = 0;
 
-    //Target reached?
     if (current_route.size() > 0)
     {
         if (std::abs(position.x - target.x) < 8.f && std::abs(position.y - target.y) < 8.f)
@@ -84,7 +81,6 @@ void Tank::set_route(const std::vector<vec2>& route)
     }
 }
 
-//Start reloading timer
 void Tank::reload_rocket()
 {
     reloaded = false;
@@ -96,7 +92,6 @@ void Tank::deactivate()
     active = false;
 }
 
-//Remove health
 bool Tank::hit(int hit_value)
 {
     health -= hit_value;
@@ -110,7 +105,6 @@ bool Tank::hit(int hit_value)
     return false;
 }
 
-//Draw the sprite with the facing based on this tanks movement direction
 void Tank::draw(Surface* screen)
 {
     vec2 direction = (target - position).normalized();
@@ -123,10 +117,9 @@ int Tank::compare_health(const Tank& other) const
     return ((health == other.health) ? 0 : ((health > other.health) ? 1 : -1));
 }
 
-//Add some force in a given direction
 void Tank::push(vec2 direction, float magnitude)
 {
     force += direction * magnitude;
 }
 
-} // namespace Tmpl8
+}

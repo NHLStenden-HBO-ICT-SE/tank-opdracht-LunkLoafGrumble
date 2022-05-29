@@ -27,4 +27,4 @@ class Rocket
     Sprite* rocket_sprite;
 };
 
-} // namespace Tmpl8
+}

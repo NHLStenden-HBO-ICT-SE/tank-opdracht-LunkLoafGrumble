@@ -6,7 +6,6 @@ namespace Tmpl8
 {
     Terrain::Terrain()
     {
-        //Load in terrain sprites
         grass_img = std::make_unique<Surface>("assets/tile_grass.png");
         forest_img = std::make_unique<Surface>("assets/tile_forest.png");
         rocks_img = std::make_unique<Surface>("assets/tile_rocks.png");
@@ -21,7 +20,6 @@ namespace Tmpl8
         tile_mountains = std::make_unique<Sprite>(mountains_img.get(), 1);
 
 
-        //Load terrain layout file and fill grid based on tiletypes
         fs::path terrain_file_path{ "assets/terrain.txt" };
         std::ifstream terrain_file(terrain_file_path);
 
@@ -72,7 +70,6 @@ namespace Tmpl8
             std::cout << "Path was: " << terrain_file_path << std::endl;
         }
 
-        //Instantiate tiles for path planning
         for (size_t y = 0; y < tiles.size(); y++)
         {
             for (size_t x = 0; x < tiles.at(y).size(); x++)
@@ -90,7 +87,6 @@ namespace Tmpl8
 
     void Terrain::update()
     {
-        //Pretend there is animation code here.. next year :)
     }
 
     void Terrain::draw(Surface* target) const
@@ -128,17 +124,14 @@ namespace Tmpl8
         }
     }
 
-    //Use Breadth-first search to find shortest route to the destination
     vector<vec2> Terrain::get_route(const Tank& tank, const vec2& target)
     {
-        //Find start and target tile
         const size_t pos_x = tank.position.x / sprite_size;
         const size_t pos_y = tank.position.y / sprite_size;
 
         const size_t target_x = target.x / sprite_size;
         const size_t target_y = target.y / sprite_size;
 
-        //Init queue with start tile
         std::queue<vector<TerrainTile*>> queue;
         queue.emplace();
         queue.back().push_back(&tiles.at(pos_y).at(pos_x));
@@ -153,7 +146,6 @@ namespace Tmpl8
             queue.pop();
             TerrainTile* current_tile = current_route.back();
 
-            //Check all exits, if target then done, else if unvisited push a new partial route
             for (TerrainTile * exit : current_tile->exits)
             {
                 if (exit->position_x == target_x && exit->position_y == target_y)
@@ -172,7 +164,6 @@ namespace Tmpl8
             }
         }
 
-        //Reset tiles
         for (TerrainTile * tile : visited)
         {
             tile->visited = false;
@@ -180,7 +171,6 @@ namespace Tmpl8
 
         if (route_found)
         {
-            //Convert route to vec2 to prevent dangling pointers
             std::vector<vec2> route;
             for (TerrainTile* tile : current_route)
             {
@@ -196,7 +186,6 @@ namespace Tmpl8
 
     }
 
-    //TODO: Function not used, convert BFS to dijkstra and take speed into account next year :)
     float Terrain::get_speed_modifier(const vec2& position) const
     {
         const size_t pos_x = position.x / sprite_size;
@@ -227,10 +216,8 @@ namespace Tmpl8
 
     bool Terrain::is_accessible(int y, int x)
     {
-        //Bounds check
         if ((x >= 0 && x < terrain_width) && (y >= 0 && y < terrain_height))
         {
-            //Inaccessible terrain check
             if (tiles.at(y).at(x).tile_type != TileType::MOUNTAINS && tiles.at(y).at(x).tile_type != TileType::WATER)
             {
                 return true;

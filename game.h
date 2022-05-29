@@ -2,7 +2,6 @@
 
 namespace Tmpl8
 {
-//forward declarations
 class Tank;
 class Rocket;
 class Smoke;
@@ -60,8 +59,7 @@ class Game
 
     bool lock_update = false;
 
-    //Checks if a point lies on the left of an arbitrary angled line
     bool left_of_line(vec2 line_start, vec2 line_end, vec2 point);
 };
 
-}; // namespace Tmpl8
+}

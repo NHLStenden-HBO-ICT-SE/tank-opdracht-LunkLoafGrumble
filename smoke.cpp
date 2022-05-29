@@ -16,4 +16,4 @@ void Smoke::draw(Surface* screen)
     smoke_sprite.draw(screen, (int)position.x + HEALTHBAR_OFFSET, (int)position.y);
 }
 
-} // namespace Tmpl8
+}

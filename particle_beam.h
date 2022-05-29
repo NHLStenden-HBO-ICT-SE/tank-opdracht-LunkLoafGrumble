@@ -22,4 +22,4 @@ class Particle_beam
 
     Sprite* particle_beam_sprite;
 };
-} // namespace Tmpl8
+}

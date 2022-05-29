@@ -1,6 +1,3 @@
-// Template, UU version
-// IGAD/NHTV/UU - Jacco Bikker - 2006-2019
-
 #pragma once
 
 namespace Tmpl8
@@ -10,7 +7,7 @@ namespace Tmpl8
 #define GREENMASK (0x00ff00)
 #define BLUEMASK (0x0000ff)
 
-typedef unsigned int Pixel; // unsigned int is assumed to be 32-bit, which seems a safe assumption.
+typedef unsigned int Pixel;
 
 inline Pixel add_blend(Pixel a_Color1, Pixel a_Color2)
 {
@@ -23,7 +20,6 @@ inline Pixel add_blend(Pixel a_Color1, Pixel a_Color2)
     return (r1 + g1 + b1);
 }
 
-// subtractive blending
 inline Pixel sub_blend(Pixel a_Color1, Pixel a_Color2)
 {
     int red = (a_Color1 & REDMASK) - (a_Color2 & REDMASK);
@@ -35,7 +31,6 @@ inline Pixel sub_blend(Pixel a_Color1, Pixel a_Color2)
     return (Pixel)(red + green + blue);
 }
 
-// color scaling
 inline Pixel scale_color(Pixel c, int s)
 {
     const unsigned int rb = (((c & (REDMASK | BLUEMASK)) * s) >> 5) & (REDMASK | BLUEMASK);
@@ -51,19 +46,16 @@ class Surface
     };
 
   public:
-    // constructor / destructor
     Surface(int a_Width, int a_Height, Pixel* a_Buffer, int a_Pitch);
     Surface(int a_Width, int a_Height);
     Surface(const char* a_File);
     ~Surface();
-    // member data access
     Pixel* get_buffer() { return m_Buffer; }
     void set_buffer(Pixel* a_Buffer) { m_Buffer = a_Buffer; }
     int get_width() { return m_Width; }
     int get_height() { return m_Height; }
     int get_pitch() { return m_Pitch; }
     void set_pitch(int a_Pitch) { m_Pitch = a_Pitch; }
-    // Special operations
     void init_charset();
     void set_char(int c, const char* c1, const char* c2, const char* c3, const char* c4, const char* c5);
     void centre(const char* a_String, int y1, Pixel color);
@@ -81,12 +73,10 @@ class Surface
     void resize(Surface* a_Orig);
 
   private:
-    // Attributes
     Pixel* m_Buffer;
     int m_Width, m_Height;
     int m_Pitch;
     int m_Flags;
-    // Static attributes for the builtin font
     static char s_Font[51][5][6];
     static bool fontInitialized;
     int s_Transl[256];
@@ -95,7 +85,6 @@ class Surface
 class Sprite
 {
   public:
-    // Sprite flags
     enum
     {
         FLARE = (1 << 0),
@@ -110,10 +99,8 @@ class Sprite
         NOCLIP = (1 << 14)
     };
 
-    // Structors
     Sprite(Surface* a_Surface, unsigned int a_NumFrames);
     ~Sprite();
-    // Methods
     void draw(Surface* a_Target, int a_X, int a_Y);
     void draw_scaled(int a_X, int a_Y, int a_Width, int a_Height, Surface* a_Target);
     void set_flags(unsigned int a_Flags) { m_Flags = a_Flags; }
@@ -127,7 +114,6 @@ class Sprite
     void initialize_start_data();
 
   private:
-    // Attributes
     int m_Width, m_Height, m_Pitch;
     unsigned int m_NumFrames;
     unsigned int m_CurrentFrame;
@@ -162,4 +148,4 @@ class Font
     int m_CY2 = 0;
 };
 
-}; // namespace Tmpl8
+};

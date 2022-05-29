@@ -1,4 +1,4 @@
-#include "precomp.h" // include (only) this in every .cpp file
+#include "precomp.h"
 
 constexpr auto num_tanks_blue = 2048;
 constexpr auto num_tanks_red = 2048;
@@ -13,12 +13,10 @@ constexpr auto health_bar_width = 70;
 
 constexpr auto max_frames = 2000;
 
-//Global performance timer
-constexpr auto REF_PERFORMANCE = 114757; //UPDATE THIS WITH YOUR REFERENCE PERFORMANCE (see console after 2k frames)
+constexpr auto REF_PERFORMANCE = 114757;
 static timer perf_timer;
 static float duration;
 
-//Load sprite files and initialize sprites
 static Surface* tank_red_img = new Surface("assets/Tank_Proj2.png");
 static Surface* tank_blue_img = new Surface("assets/Tank_Blue_Proj2.png");
 static Surface* rocket_red_img = new Surface("assets/Rocket_Proj2.png");
@@ -41,11 +39,6 @@ const static vec2 rocket_size(6, 6);
 const static float tank_radius = 3.f;
 const static float rocket_radius = 5.f;
 
-// -----------------------------------------------------------
-// Initialize the simulation state
-// This function does not count for the performance multiplier
-// (Feel free to optimize anyway though ;) )
-// -----------------------------------------------------------
 void Game::init()
 {
     frame_count_font = new Font("assets/digital_small.png", "ABCDEFGHIJKLMNOPQRSTUVWXYZ:?!=-0123456789.");
@@ -62,13 +55,11 @@ void Game::init()
 
     float spacing = 7.5f;
 
-    //Spawn blue tanks
     for (int i = 0; i < num_tanks_blue; i++)
     {
         vec2 position{ start_blue_x + ((i % max_rows) * spacing), start_blue_y + ((i / max_rows) * spacing) };
         tanks.push_back(Tank(position.x, position.y, BLUE, &tank_blue, &smoke, 1100.f, position.y + 16, tank_radius, tank_max_health, tank_max_speed));
     }
-    //Spawn red tanks
     for (int i = 0; i < num_tanks_red; i++)
     {
         vec2 position{ start_red_x + ((i % max_rows) * spacing), start_red_y + ((i / max_rows) * spacing) };
@@ -80,16 +71,10 @@ void Game::init()
     particle_beams.push_back(Particle_beam(vec2(1200, 600), vec2(100, 50), &particle_beam_sprite, particle_beam_hit_value));
 }
 
-// -----------------------------------------------------------
-// Close down application
-// -----------------------------------------------------------
 void Game::shutdown()
 {
 }
 
-// -----------------------------------------------------------
-// Iterates through all tanks and returns the closest enemy tank for the given tank
-// -----------------------------------------------------------
 Tank& Game::find_closest_enemy(Tank& current_tank)
 {
     float closest_distance = numeric_limits<float>::infinity();
@@ -111,23 +96,14 @@ Tank& Game::find_closest_enemy(Tank& current_tank)
     return tanks.at(closest_index);
 }
 
-//Checks if a point lies on the left of an arbitrary angled line
+
 bool Tmpl8::Game::left_of_line(vec2 line_start, vec2 line_end, vec2 point)
 {
     return ((line_end.x - line_start.x) * (point.y - line_start.y) - (line_end.y - line_start.y) * (point.x - line_start.x)) < 0;
 }
 
-// -----------------------------------------------------------
-// Update the game state:
-// Move all objects
-// Update sprite frames
-// Collision detection
-// Targeting etc..
-// -----------------------------------------------------------
 void Game::update(float deltaTime)
 {
-    //Calculate the route to the destination for each tank using BFS
-    //Initializing routes here so it gets counted for performance..
     if (frame_count == 0)
     {
         for (Tank& t : tanks)
@@ -136,7 +112,6 @@ void Game::update(float deltaTime)
         }
     }
 
-    //Check tank collision and nudge tanks away from each other
     for (Tank& tank : tanks)
     {
         if (tank.active)
@@ -159,15 +134,12 @@ void Game::update(float deltaTime)
         }
     }
 
-    //Update tanks
     for (Tank& tank : tanks)
     {
         if (tank.active)
         {
-            //Move tanks according to speed and nudges (see above) also reload
             tank.tick(background_terrain);
 
-            //Shoot at closest target if reloaded
             if (tank.rocket_reloaded())
             {
                 Tank& target = find_closest_enemy(tank);
@@ -179,16 +151,13 @@ void Game::update(float deltaTime)
         }
     }
 
-    //Update smoke plumes
     for (Smoke& smoke : smokes)
     {
         smoke.tick();
     }
 
-    //Calculate "forcefield" around active tanks
     forcefield_hull.clear();
 
-    //Find first active tank (this loop is a bit disgusting, fix?)
     int first_active = 0;
     for (Tank& tank : tanks)
     {
@@ -199,7 +168,7 @@ void Game::update(float deltaTime)
         first_active++;
     }
     vec2 point_on_hull = tanks.at(first_active).position;
-    //Find left most tank position
+
     for (Tank& tank : tanks)
     {
         if (tank.active)
@@ -211,7 +180,6 @@ void Game::update(float deltaTime)
         }
     }
 
-    //Calculate convex hull for 'rocket barrier'
     for (Tank& tank : tanks)
     {
         if (tank.active)
@@ -238,12 +206,10 @@ void Game::update(float deltaTime)
         }
     }
 
-    //Update rockets
     for (Rocket& rocket : rockets)
     {
         rocket.tick();
 
-        //Check if rocket collides with enemy tank, spawn explosion, and if tank is destroyed spawn a smoke plume
         for (Tank& tank : tanks)
         {
             if (tank.active && (tank.allignment != rocket.allignment) && rocket.intersects(tank.position, tank.collision_radius))
@@ -261,8 +227,6 @@ void Game::update(float deltaTime)
         }
     }
 
-    //Disable rockets if they collide with the "forcefield"
-    //Hint: A point to convex hull intersection test might be better here? :) (Disable if outside)
     for (Rocket& rocket : rockets)
     {
         if (rocket.active)
@@ -278,17 +242,12 @@ void Game::update(float deltaTime)
         }
     }
 
-
-
-    //Remove exploded rockets with remove erase idiom
     rockets.erase(std::remove_if(rockets.begin(), rockets.end(), [](const Rocket& rocket) { return !rocket.active; }), rockets.end());
 
-    //Update particle beams
     for (Particle_beam& particle_beam : particle_beams)
     {
         particle_beam.tick(tanks);
 
-        //Damage all tanks within the damage window of the beam (the window is an axis-aligned bounding box)
         for (Tank& tank : tanks)
         {
             if (tank.active && particle_beam.rectangle.intersects_circle(tank.get_position(), tank.get_collision_radius()))
@@ -301,7 +260,6 @@ void Game::update(float deltaTime)
         }
     }
 
-    //Update explosion sprites and remove when done with remove erase idiom
     for (Explosion& explosion : explosions)
     {
         explosion.tick();
@@ -310,19 +268,12 @@ void Game::update(float deltaTime)
     explosions.erase(std::remove_if(explosions.begin(), explosions.end(), [](const Explosion& explosion) { return explosion.done(); }), explosions.end());
 }
 
-// -----------------------------------------------------------
-// Draw all sprites to the screen
-// (It is not recommended to multi-thread this function)
-// -----------------------------------------------------------
 void Game::draw()
 {
-    // clear the graphics window
     screen->clear(0);
 
-    //Draw background
     background_terrain.draw(screen);
 
-    //Draw sprites
     for (int i = 0; i < num_tanks_blue + num_tanks_red; i++)
     {
         tanks.at(i).draw(screen);
@@ -350,7 +301,7 @@ void Game::draw()
         explosion.draw(screen);
     }
 
-    //Draw forcefield (mostly for debugging, its kinda ugly..)
+
     for (size_t i = 0; i < forcefield_hull.size(); i++)
     {
         vec2 line_start = forcefield_hull.at(i);
@@ -360,7 +311,6 @@ void Game::draw()
         screen->line(line_start, line_end, 0x0000ff);
     }
 
-    //Draw sorted health bars
     for (int t = 0; t < 2; t++)
     {
         const int NUM_TANKS = ((t < 1) ? num_tanks_blue : num_tanks_red);
@@ -374,9 +324,6 @@ void Game::draw()
     }
 }
 
-// -----------------------------------------------------------
-// Sort tanks by health value using insertion sort
-// -----------------------------------------------------------
 void Tmpl8::Game::insertion_sort_tanks_health(const std::vector<Tank>& original, std::vector<const Tank*>& sorted_tanks, int begin, int end)
 {
     const int NUM_TANKS = end - begin;
@@ -406,9 +353,6 @@ void Tmpl8::Game::insertion_sort_tanks_health(const std::vector<Tank>& original,
     }
 }
 
-// -----------------------------------------------------------
-// Draw the health bars based on the given tanks health values
-// -----------------------------------------------------------
 void Tmpl8::Game::draw_health_bars(const std::vector<const Tank*>& sorted_tanks, const int team)
 {
     int health_bar_start_x = (team < 1) ? 0 : (SCRWIDTH - HEALTHBAR_OFFSET) - 1;
@@ -416,18 +360,15 @@ void Tmpl8::Game::draw_health_bars(const std::vector<const Tank*>& sorted_tanks,
 
     for (int i = 0; i < SCRHEIGHT - 1; i++)
     {
-        //Health bars are 1 pixel each
         int health_bar_start_y = i * 1;
         int health_bar_end_y = health_bar_start_y + 1;
 
         screen->bar(health_bar_start_x, health_bar_start_y, health_bar_end_x, health_bar_end_y, REDMASK);
     }
 
-    //Draw the <SCRHEIGHT> least healthy tank health bars
     int draw_count = std::min(SCRHEIGHT, (int)sorted_tanks.size());
     for (int i = 0; i < draw_count - 1; i++)
     {
-        //Health bars are 1 pixel each
         int health_bar_start_y = i * 1;
         int health_bar_end_y = health_bar_start_y + 1;
 
@@ -438,11 +379,6 @@ void Tmpl8::Game::draw_health_bars(const std::vector<const Tank*>& sorted_tanks,
     }
 }
 
-// -----------------------------------------------------------
-// When we reach max_frames print the duration and speedup multiplier
-// Updating REF_PERFORMANCE at the top of this file with the value
-// on your machine gives you an idea of the speedup your optimizations give
-// -----------------------------------------------------------
 void Tmpl8::Game::measure_performance()
 {
     char buffer[128];
@@ -469,9 +405,7 @@ void Tmpl8::Game::measure_performance()
     }
 }
 
-// -----------------------------------------------------------
-// Main application tick function
-// -----------------------------------------------------------
+
 void Game::tick(float deltaTime)
 {
     if (!lock_update)
@@ -482,13 +416,6 @@ void Game::tick(float deltaTime)
 
     measure_performance();
 
-    // print something in the graphics window
-    //screen->Print("hello world", 2, 2, 0xffffff);
-
-    // print something to the text window
-    //cout << "This goes to the console window." << std::endl;
-
-    //Print frame count
     frame_count++;
     string frame_count_string = "FRAME: " + std::to_string(frame_count);
     frame_count_font->print(screen, frame_count_string.c_str(), 350, 580);

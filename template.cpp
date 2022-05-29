@@ -1,14 +1,7 @@
-// Template, UU version
-// IGAD/NHTV/UU - Jacco Bikker - 2006-2019
-
-// Note:
-// this version of the template uses SDL2 for all frame buffer interaction
-// see: https://www.libsdl.org
-
 #ifdef _MSC_VER
-#pragma warning(disable : 4530) // complaint about exception handler
+#pragma warning(disable : 4530)
 #pragma warning(disable : 4273)
-#pragma warning(disable : 4311) // pointer truncation from HANDLE to long
+#pragma warning(disable : 4311)
 #endif
 
 #include "precomp.h"
@@ -16,8 +9,6 @@
 namespace Tmpl8
 {
 
-// Math Stuff
-// ----------------------------------------------------------------------------
 vec3 normalize(const vec3& v) { return v.normalized(); }
 vec3 cross(const vec3& a, const vec3& b) { return a.cross(b); }
 float dot(const vec3& a, const vec3& b) { return a.dot(b); }
@@ -56,7 +47,6 @@ vec4 operator*(const vec4& b, const mat4& a)
 }
 mat4 mat4::rotate(const vec3 l, const float a)
 {
-    // http://inside.mines.edu/fs_home/gmurray/ArbitraryAxisRotation
     mat4 M;
     const float u = l.x, v = l.y, w = l.z, ca = cosf(a), sa = sinf(a);
     M.cell[0] = u * u + (v * v + w * w) * ca, M.cell[1] = u * v * (1 - ca) - w * sa;
@@ -98,7 +88,7 @@ void NotifyUser(const char* s)
 
     exit(0);
 }
-} // namespace Tmpl8
+}
 
 using namespace Tmpl8;
 using namespace std;
@@ -278,10 +268,8 @@ int main(int argc, char** argv)
             firstframe = false;
         }
 
-        // calculate frame time and pass it to game->Tick
         game->tick(t.elapsed());
         t.reset();
-        // event loop
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -294,7 +282,6 @@ int main(int argc, char** argv)
                 if (event.key.keysym.sym == SDLK_ESCAPE)
                 {
                     exitapp = 1;
-                    // find other keys here: http://sdl.beuc.net/sdl.wiki/SDLKey
                 }
                 game->key_down(event.key.keysym.scancode);
                 break;

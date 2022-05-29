@@ -36,4 +36,4 @@ void Particle_beam::draw(Surface* screen)
     particle_beam_sprite->draw(screen, (int)(position.x - offset_x + HEALTHBAR_OFFSET), (int)(position.y - offset_y));
 }
 
-} // namespace Tmpl8
+}

@@ -1,6 +1,3 @@
-// Template, UU version
-// IGAD/NHTV/UU - Jacco Bikker - 2006-2019
-
 #pragma once
 
 #define TEMPLATE_VERSION "Template_v2019.01"
@@ -41,7 +38,6 @@ typedef unsigned int uint;
 #define unlikely(expr) __builtin_expect((expr), false)
 #endif
 
-// deterministic rng
 static uint seed = 0x12345678;
 inline uint random_uint()
 {
@@ -65,7 +61,6 @@ struct timer
     TimePoint start;
     inline timer() : start(get()) {}
 
-    /// Returns the elapsed time, in milliseconds.
     inline float elapsed() const
     {
         auto diff = get() - start;
@@ -80,8 +75,8 @@ struct timer
     inline void reset() { start = get(); }
 };
 
-// vectors
-class vec2 // adapted from https://github.com/dcow/RayTracer
+
+class vec2
 {
   public:
     union {
@@ -434,7 +429,6 @@ class mat4
     static mat4 rotatez(const float a);
     void invert()
     {
-        // from MESA, via http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
         const float inv[16] = {
             cell[5] * cell[10] * cell[15] - cell[5] * cell[11] * cell[14] - cell[9] * cell[6] * cell[15] +
                 cell[9] * cell[7] * cell[14] + cell[13] * cell[6] * cell[11] - cell[13] * cell[7] * cell[10],
@@ -603,50 +597,31 @@ inline bool circle_segment_intersect(vec2 s1, vec2 s2, vec2 cp, float r)
 
     if (discriminant < 0)
     {
-        // no intersection
         return false;
     }
     else
     {
-        // ray didn't totally miss sphere, so there is a solution to the equation.
 
         discriminant = sqrt(discriminant);
 
-        // either solution may be on or off the ray so need to test both
-        // t1 is always the smaller value, because BOTH discriminant and
-        // a are nonnegative.
         float t1 = (-b - discriminant) / (2 * a);
         float t2 = (-b + discriminant) / (2 * a);
 
-        // 3x HIT cases:
-        //          -o->             --|-->  |            |  --|->
-        // Impale(t1 hit,t2 hit), Poke(t1 hit,t2>1), ExitWound(t1<0, t2 hit), 
-
-        // 3x MISS cases:
-        //       ->  o                     o ->              | -> |
-        // FallShort (t1>1,t2>1), Past (t1<0,t2<0), CompletelyInside(t1<0, t2>1)
-
         if (t1 >= 0 && t1 <= 1)
         {
-            // t1 is the intersection, and it's closer than t2
-            // (since t1 uses -b - discriminant)
-            // Impale, Poke
             return true;
         }
 
-        // here t1 didn't intersect so we are either started
-        // inside the sphere or completely past it
         if (t2 >= 0 && t2 <= 1)
         {
             // ExitWound
             return true;
         }
 
-        // no intn: FallShort, Past, CompletelyInside
         return false;
     }
 }
 
 #define BADFLOAT(x) ((*(uint*)&x & 0x7f000000) == 0x7f000000)
 
-}; // namespace Tmpl8
+}
