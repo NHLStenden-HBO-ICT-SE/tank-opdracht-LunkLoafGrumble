@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
-project ("Tmpl8_2018-01")
+project ("tanks")
 
 # FindFreeImage.cmake and FindSDL2.cmake are not part of cmake by default, use modified third-party scripts:
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
@@ -22,8 +22,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE GLEW::GLEW)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2)
 target_link_libraries(${PROJECT_NAME} PRIVATE FreeImage::freeimage)
 
-# AVX2 support (Intel Haswell and higher)
-#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-mavx2")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-mavx2")
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_STANDARD 17 # Require C++ 17
